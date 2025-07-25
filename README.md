@@ -1,13 +1,55 @@
 # Spring Boot Example
 
-## Table of Contents
+## how `server.forward-headers-strategy=framework` works with security oauth2 client
 
-- **[Security](#security)**
+#### Reverse proxy
 
-#### Security &nbsp;[<sup>[TOC]</sup>](#table-of-contents)
+```text
+server {
+    listen       80;
+    server_name  localhost;
 
-<p>
+    location / {
+        root   html;
+        index  index.html index.htm;
+    }
+    
+    location /app/ {
+        proxy_pass http://localhost:8081/;
+        
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        proxy_set_header X-Forwarded-Prefix /app;
+    }
+    
+    location /auth/ {
+        proxy_pass	http://localhost:8080/;
+    }
+}
+```
 
-&nbsp;&nbsp; <a href="https://github.com/thainguyen101b/spring-boot-example/tree/springbootexample-001"><b>How server.forward-headers-strategy=native works with security oauth2 client</b></a>
+#### Spring Boot
 
-</p>
+```properties
+server.port=8081
+server.forward-headers-strategy=framework
+spring.security.oauth2.client.registration.springbootexample.client-id=spring-boot-example
+spring.security.oauth2.client.registration.springbootexample.client-secret=secret
+spring.security.oauth2.client.registration.springbootexample.scope[0]=openid
+spring.security.oauth2.client.registration.springbootexample.provider=keycloak
+spring.security.oauth2.client.provider.keycloak.issuer-uri=http://localhost/auth/realms/springbootexample
+```
+
+#### Test
+
+Khi truy cập url http://localhost/app/oauth2/authorization/springbootexample, nginx sẽ proxy pass tới spring boot với
+url http://localhost:8081/oauth2/authorization/springbootexample.
+
+Và với header `X-Forwarded-Prefix` được thiết lập là `/app`, và cơ chế tự động cấu hình bean `ForwardedHeaderFilter`.
+
+Spring Boot tự động tạo `redirect-uri` một cách chính xác dựa vào reverse-proxy, cụ thể là:
+http://localhost/app/login/oauth2/code/springbootexample
