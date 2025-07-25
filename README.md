@@ -1,6 +1,6 @@
 # Spring Boot Example
 
-## Title: Cấu hình Spring Boot OAuth2 Client khi chạy đằng sau một reverse proxy
+## how `server.forward-headers-strategy=native` works with security oauth2 client
 
 ## Mô tả
 
@@ -65,3 +65,8 @@ Tomcat. Vấn đề là `X-Forwarded-Prefix` không được hỗ trợ tự đ�
 2. http://localhost/oauth2/authorization/springbootexample
 
 auth url: http://localhost/auth/realms/springbootexample/protocol/openid-connect/auth?response_type=code&client_id=spring-boot-example&scope=openid&state=NVOI0XOKZa_gMFxX8YgdPEXJPXlc5j_7yyqiqksyF5U%3D&redirect_uri=http://localhost/login/oauth2/code/springbootexample&nonce=UpLx-iiwmaSLv4xRgMBMUihggAtSwE9tptTJYEnjBUY
+
+## Refs
+* [oauth2-login](https://docs.spring.io/spring-security/reference/reactive/oauth2/login/core.html)
+* [http-proxy-server](https://docs.spring.io/spring-security/reference/features/exploits/http.html#http-proxy-server)
+* [Running Behind a Front-end Proxy Server](https://docs.spring.io/spring-boot/how-to/webserver.html#howto.webserver.use-behind-a-proxy-server)
