@@ -15,8 +15,7 @@ type User = {
 }
 
 type UserContextType = {
-  user: User | null
-  setUser: (user: User) => void
+  user: User | null,
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined)
@@ -27,26 +26,17 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let refreshTimeout: ReturnType<typeof setTimeout>
 
-    const refresh = async (currentUser: User | null) => {
+    const refresh = async () => {
       try {
         const res = await api.get<User>('/bff/api/me')
         const data = res.data
-
-        const hasChanged =
-          !currentUser ||
-          data.username !== currentUser.username ||
-          data.email !== currentUser.email ||
-          data.roles.toString() !== currentUser.roles.toString()
-
-        if (hasChanged) {
-          setUser(data.username ? data : null)
-        }
+        setUser(data?.username ? data : null)
 
         if (data.exp) {
           const now = Date.now()
           const delay = (data.exp * 1000 - now) * 0.8
           if (delay > 2000) {
-            refreshTimeout = setTimeout(() => refresh(data), delay)
+            refreshTimeout = setTimeout(() => refresh(), delay)
           }
         }
       } catch (err) {
@@ -55,18 +45,18 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       }
     }
 
-    refresh(user)
+    refresh()
 
     return () => {
       if (refreshTimeout) clearTimeout(refreshTimeout)
     }
-  }, [user])
+  }, [])
+
 
   return (
     <UserContext.Provider
       value={{
-        user,
-        setUser,
+        user
       }}
     >
       {children}

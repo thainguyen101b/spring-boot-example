@@ -29,8 +29,7 @@ function App() {
 
     const successUri = new URL(location.pathname, baseUri).toString()
     url.searchParams.append('post_login_success_uri', successUri)
-    const failureUri = new URL('/login-error', baseUri).toString()
-    url.searchParams.append('post_login_failure_uri', failureUri)
+    url.searchParams.append('post_login_failure_uri', `${baseUri}/login-error`)
 
     window.location.href = url.toString()
   }
@@ -56,12 +55,17 @@ function App() {
     <section>
       {!user?.username ? (
         <form onSubmit={handleLoginSubmit}>
-          <button disabled={!!user?.username} type="submit">
-            Login
-          </button>
+          <button type="submit">Login</button>
         </form>
       ) : (
-        <button onClick={handleLogout}>Logout</button>
+        <div>
+          <div>
+            Hi {user.username}! <button onClick={handleLogout}>Logout</button>
+          </div>
+          <pre>
+            {JSON.stringify(user)}
+          </pre>
+        </div>
       )}
     </section>
   )
